@@ -568,6 +568,16 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         `
         }
+        <div class="share-container">
+          <button class="share-button" aria-label="Share activity" title="Share this activity">
+            📤 Share
+          </button>
+          <div class="share-dropdown hidden">
+            <a class="share-option share-twitter" target="_blank" rel="noopener noreferrer">𝕏 Twitter</a>
+            <a class="share-option share-whatsapp" target="_blank" rel="noopener noreferrer">💬 WhatsApp</a>
+            <button class="share-option share-copy">🔗 Copy Link</button>
+          </div>
+        </div>
       </div>
     `;
 
@@ -586,6 +596,45 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add share button handlers
+    const shareButton = activityCard.querySelector(".share-button");
+    const shareDropdown = activityCard.querySelector(".share-dropdown");
+    const shareUrl = `${window.location.origin}${window.location.pathname}?activity=${encodeURIComponent(name)}`;
+    const shareText = `Check out "${name}" at Mergington High School! ${details.description}`;
+
+    // Populate share links
+    const twitterLink = activityCard.querySelector(".share-twitter");
+    twitterLink.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+
+    const whatsappLink = activityCard.querySelector(".share-whatsapp");
+    whatsappLink.href = `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`;
+
+    const copyButton = activityCard.querySelector(".share-copy");
+    copyButton.addEventListener("click", () => {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        copyButton.textContent = "✅ Copied!";
+        setTimeout(() => {
+          copyButton.textContent = "🔗 Copy Link";
+        }, 2000);
+      });
+    });
+
+    shareButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      // Use native Web Share API if available
+      if (navigator.share) {
+        navigator.share({ title: name, text: shareText, url: shareUrl }).catch(() => {});
+        return;
+      }
+      // Toggle dropdown
+      const isOpen = !shareDropdown.classList.contains("hidden");
+      // Close all other open dropdowns first
+      document.querySelectorAll(".share-dropdown").forEach((d) => d.classList.add("hidden"));
+      if (!isOpen) {
+        shareDropdown.classList.remove("hidden");
+      }
+    });
 
     activitiesList.appendChild(activityCard);
   }
@@ -855,6 +904,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Close share dropdowns when clicking outside
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".share-dropdown").forEach((d) => d.classList.add("hidden"));
+  });
+
+  // Highlight a shared activity from URL parameter
+  function highlightSharedActivity() {
+    const params = new URLSearchParams(window.location.search);
+    const sharedActivity = params.get("activity");
+    if (!sharedActivity) return;
+
+    // Wait for activities to be rendered, then scroll to and highlight the card
+    const tryHighlight = (attempts) => {
+      const cards = activitiesList.querySelectorAll(".activity-card");
+      for (const card of cards) {
+        const title = card.querySelector("h4");
+        if (title && title.textContent.trim() === sharedActivity) {
+          card.classList.add("highlight-shared");
+          card.scrollIntoView({ behavior: "smooth", block: "center" });
+          setTimeout(() => card.classList.remove("highlight-shared"), 3000);
+          return;
+        }
+      }
+      // Retry a few times while activities load
+      if (attempts > 0) {
+        setTimeout(() => tryHighlight(attempts - 1), 400);
+      }
+    };
+    setTimeout(() => tryHighlight(5), 500);
+  }
+
   // Expose filter functions to window for future UI control
   window.activityFilters = {
     setDayFilter,
@@ -865,4 +945,5 @@ document.addEventListener("DOMContentLoaded", () => {
   checkAuthentication();
   initializeFilters();
   fetchActivities();
+  highlightSharedActivity();
 });

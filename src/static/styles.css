@@ -187,7 +187,10 @@ section h3 {
   margin-top: auto;
   padding-top: 10px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 /* Activity Tag */
@@ -273,7 +276,7 @@ section h3 {
   color: var(--secondary-text);
   margin-top: 10px;
   padding: 6px 12px;
-  width: 100%;
+  flex: 1;
   font-weight: bold;
   border-radius: 20px;
   box-shadow: 0 2px 4px rgba(255, 111, 0, 0.2);
@@ -468,7 +471,79 @@ button {
   font-size: 0.85rem;
 }
 
-footer {
+/* Share button and dropdown */
+.share-container {
+  position: relative;
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.share-button {
+  background-color: var(--background);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.share-button:hover {
+  background-color: var(--primary-light);
+  color: white;
+  border-color: var(--primary-light);
+}
+
+.share-dropdown {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  min-width: 150px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.share-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.share-option:last-child {
+  border-bottom: none;
+}
+
+.share-option:hover {
+  background-color: var(--background);
+}
+
+/* Highlight animation for a shared activity */
+@keyframes highlight-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(83, 75, 174, 0.5); }
+  50%  { box-shadow: 0 0 0 8px rgba(83, 75, 174, 0.1); }
+  100% { box-shadow: 0 0 0 0 rgba(83, 75, 174, 0); }
+}
+
+.activity-card.highlight-shared {
+  animation: highlight-pulse 1s ease 3;
+  border-color: var(--primary-light);
+}
   text-align: center;
   margin-top: 20px;
   padding: 10px;
