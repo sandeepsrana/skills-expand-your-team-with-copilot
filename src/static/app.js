@@ -617,6 +617,11 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => {
           copyButton.textContent = "🔗 Copy Link";
         }, 2000);
+      }).catch(() => {
+        copyButton.textContent = "❌ Copy failed";
+        setTimeout(() => {
+          copyButton.textContent = "🔗 Copy Link";
+        }, 2000);
       });
     });
 
@@ -624,7 +629,12 @@ document.addEventListener("DOMContentLoaded", () => {
       event.stopPropagation();
       // Use native Web Share API if available
       if (navigator.share) {
-        navigator.share({ title: name, text: shareText, url: shareUrl }).catch(() => {});
+        navigator.share({ title: name, text: shareText, url: shareUrl }).catch((err) => {
+          // AbortError means the user dismissed the share sheet — that's fine to ignore
+          if (err.name !== "AbortError") {
+            console.error("Share failed:", err);
+          }
+        });
         return;
       }
       // Toggle dropdown
